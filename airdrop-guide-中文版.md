@@ -1,146 +1,146 @@
-# **MoveFlow Airdrop: Project Owner Operation Guide**
+# **MoveFlow Airdrop: 项目方操作指南**
 
-## 1. Introduction
+## 1. 简介
 
-Welcome to Moveflow Airdrop. This guide will walk you through all the processes you need to understand as a project owner, from preparing your airdrop list and managing launched airdrop projects to querying airdrop progress, and provides code examples for interacting with smart contracts.
+欢迎使用 Moveflow Airdrop。本指南将引导您完成作为项目方（Project Owner）所需了解的全部流程，从准备您的空投名单、管理已上线的空投项目到查询空投的进展，并提供与智能合约交互的代码示例。
 
-## 2. Airdrop Creation
+## 2. 空投创建
 
-Creating a successful airdrop campaign requires several steps. Please follow carefully.
+创建一次成功的空投活动需要以下几个步骤。请仔细遵循。
 
-### **Step 1: Understand and Confirm Fee Model**
+### **第 1 步：了解并确认费用模式**
 
-Before launching an airdrop, the most important step is to communicate with the Moveflow platform to determine which fee model your airdrop token will use. Platform fees are borne by users claiming the airdrop, which directly affects the user claiming experience.
+在发起空投之前，最重要的一步是与 Moveflow 平台方沟通，确定您本次空投所使用的代币将采用哪种手续费模式。平台的手续费由领取空投的用户承担，这直接影响用户的领取体验。
 
-Moveflow supports the following three fee models, and your airdrop token will be configured as one of them:
+Moveflow 支持以下三种收费模式，您的空投代币将被配置为其中一种：
 
-1.  **Fixed Gas Token Fee (Fixed Gas Token Fee)**
+1.  **固定 Gas Token 费用 (Fixed Gas Token Fee)**
 
-    - **How it works:** Each user claiming the airdrop needs to pay a fixed amount of Gas Token as a fee.
-    - **Corresponding contract:** `FixedETHFeeInstance.sol`
+    - **工作方式:** 每个领取空投的用户都需要支付一笔固定数额的 Gas Token 作为手续费。
+    - **对应合约:** `FixedETHFeeInstance.sol`
 
-2.  **Fixed Token Fee (Fixed Token Fee)**
+2.  **固定代币费用 (Fixed Token Fee)**
 
-    - **How it works:** Each user claiming the airdrop needs to pay a fixed amount of a **specified type** of ERC20 token as a fee.
-    - **Corresponding contract:** `FixedTokenFeeInstance.sol`
+    - **工作方式:** 每个领取空投的用户都需要支付一笔固定数额的、**指定种类**的 ERC20 代币作为手续费。
+    - **对应合约:** `FixedTokenFeeInstance.sol`
 
-3.  **Percentage Fee (Percentage Fee)**
-    - **How it works:** Fees will be automatically deducted from the user's claimed airdrop tokens at a preset ratio. Users don't need to pay additional tokens.
-    - **Corresponding contract:** `PercentageFeeInstance.sol`
+3.  **百分比费用 (Percentage Fee)**
+    - **工作方式:** 手续费将从用户领取的空投代币中按预设比例自动扣除。用户无需支付额外的代币。
+    - **对应合约:** `PercentageFeeInstance.sol`
 
-**Please be sure to confirm with the platform that your airdrop token has been correctly configured with a fee model and added to the platform whitelist before proceeding with the following steps.**
+**请务必在开始后续步骤前，与平台方确认您的空投代币已被正确配置了费用模式，并已加入平台白名单。**
 
-### **Step 2: Prepare Your Airdrop List (CSV File)**
+### **第 2 步：准备您的空投名单 (CSV 文件)**
 
-You need a CSV file containing recipient addresses and corresponding amounts.
+您需要一个包含接收者地址和对应数量的 CSV 文件。
 
 ```csv
 0xAbcE123...,1000
 0xDefG456...,550
 ```
 
-### **Step 3: Generate Merkle Root and Total Amount**
+### **第 3 步：生成 Merkle 根和总金额**
 
-The platform will generate a **Merkle Root** and **Total Amount** based on your CSV file.
+平台会根据您的 CSV 文件生成 **Merkle 根 (Merkle Root)** 和 **总金额 (Total Amount)**。
 
-### **Step 4: Confirm Airdrop Parameters**
+### **第 4 步：确认空投参数**
 
-- **Airdrop Name (Name)**
-- **Airdrop Token (Token)**
-- **Start Time (Start Time)**
-- **Can Cancel (Is Can Cancel)**
+- **空投名称 (Name)**
+- **空投代币 (Token)**
+- **开始时间 (Start Time)**
+- **是否支持取消 (Is Can Cancel)**
 
-### **Step 5: Create and Fund Airdrop on Chain**
+### **第 5 步：在链上创建并注资空投**
 
-You need to call the `createProject` function of the `MoveflowAirdropFactory` contract to officially launch the airdrop. This is an atomic operation that will simultaneously deploy a new contract and transfer funds.
+您需要调用 `MoveflowAirdropFactory` 合约的 `createProject` 函数来正式发起空投。这是一个原子操作，会同时部署新合约并转入资金。
 
-### **Step 6: Create User Interaction Frontend Page**
+### **第 6 步：创建用户交互前端页面**
 
-To facilitate users claiming the airdrop, you need to contact the platform to create an airdrop claiming page. Reference example:  
+为方便用户领取空投，您需要联系平台创建空投领取页面，参考示例：  
 [https://claim.mezo.moveflow.xyz/](https://claim.mezo.moveflow.xyz/)
 
-## 3. Airdrop Management
+## 3. 空投管理
 
-After project creation, as the project owner, you have the following management permissions for **the independent contract of that project** (Proxy Address).
+项目创建后，您作为项目所有者（Owner），可对**该项目的独立合约**（Proxy Address）拥有以下管理权限。
 
-**Important:** You need to obtain your project's `proxyAddress` (available from the `ProjectCreated` event log) and the `MoveflowAirdropImpl` contract's ABI to interact with your project.
+**重要:** 您需要获取您项目的 `proxyAddress`（可从 `ProjectCreated` 事件日志中获得）以及 `MoveflowAirdropImpl` 合约的 ABI 来与您的项目进行交互。
 
-### **Cancel Entire Airdrop (`cancelAirdrop`)**
+### **取消整个空投 (`cancelAirdrop`)**
 
-- **Function:** Completely cancel an airdrop campaign that hasn't started yet. All remaining funds in the contract will be refunded to your wallet.
-- **Permissions:**
-  - Must set `isCanCancel` to `true` when creating the project.
-  - Must be called **before** `startTime`. Once the activity starts, this function cannot be used.
+- **功能:** 完全取消尚未开始的空投活动。合约中剩余的**全部**资金将被退还到您的钱包。
+- **权限:**
+  - 必须在创建项目时将 `isCanCancel` 设置为 `true`。
+  - 必须在 `startTime` **之前**调用。活动一旦开始，此功能便无法使用。
 
-### **Blacklist Individual User (`addToBlacklist`)**
+### **拉黑单个用户 (`addToBlacklist`)**
 
-- **Function:** Prevent a specific user on the list from claiming their airdrop share.
-- **Permissions:**
-  - Must set `isCanCancel` to `true` when creating the project.
-  - Can be executed at any time (before or after start) for addresses that haven't claimed yet.
-  - You can also use `removeFromBlacklist` to remove users from the blacklist and restore their claiming eligibility.
+- **功能:** 阻止名单上的某个特定用户领取他们的空投份额。
+- **权限:**
+  - 必须在创建项目时将 `isCanCancel` 设置为 `true`。
+  - 可以随时（开始前后）对尚未领取的地址执行。
+  - 您也可以使用 `removeFromBlacklist` 将用户移出黑名单，恢复其领取资格。
 
-### **Rollback Funds (`rollbackAirdrop`)**
+### **回滚资金 (`rollbackAirdrop`)**
 
-- **Function:** End the airdrop campaign early and withdraw remaining funds after the airdrop activity has started.
-- **Permissions:**
-  - Must be called **after** `startTime`.
-  - **Note:** Executing this operation will incur a platform service fee (rollback fee), which will be deducted from the remaining funds, and then the final balance will be refunded to you.
+- **功能:** 在空投活动开始后，提前结束活动并撤回剩余资金。
+- **权限:**
+  - 必须在 `startTime` **之后**调用。
+  - **注意:** 执行此操作会产生一笔平台服务费（回滚费），该费用会从剩余资金中扣除，然后将最终余额退还给您。
 
-## 4. Airdrop Claiming
+## 4. 空投领取
 
-Users can claim airdrop tokens through the airdrop claiming page you provide (refer to airdrop creation: Step 6) or by directly interacting with the contract.  
-The following information is required for claiming:
+用户可通过您提供的空投领取页面（参考空投创建：第 6 步）或直接与合约交互来领取空投代币。  
+领取时需要提供以下信息：
 
-- **Claim Amount (amount):** The token amount corresponding to the user in the airdrop list
-- **Merkle Proof:** Proof used to verify the user's claiming eligibility
+- **领取金额 (amount)**：用户在空投名单中对应的代币数量
+- **Merkle Proof**：用于验证用户领取资格的证明
 
-**Claiming Process:**
+**领取流程**：
 
-1. User connects wallet
-2. Frontend queries the user's claiming eligibility, amount, and Merkle Proof based on their address
-3. Call the contract's `claim(amount, merkle_proof)` function to initiate the claiming transaction
-4. After transaction confirmation, tokens will be directly transferred to the user's wallet
+1. 用户连接钱包
+2. 前端根据用户地址查询其领取资格、金额和 Merkle Proof
+3. 调用合约 `claim(amount, merkle_proof)` 发起领取交易
+4. 交易确认后，代币将直接转入用户钱包
 
-## 5. Airdrop Queries
+## 5. 空投查询
 
-After project creation, you can query airdrop status and progress at any time through the project's independent contract (Proxy Address).  
-The `MoveflowAirdropImpl` contract provides the following commonly used query methods (all read-only, no gas consumption):
+项目创建后，您可通过项目的独立合约（Proxy Address）随时查询空投状态与进展。  
+`MoveflowAirdropImpl` 合约提供了以下常用查询方法（均为只读，不消耗 Gas）：
 
-### **User Claim Status (`hasClaimed`)**
+### **用户领取状态 (`hasClaimed`)**
 
-- **Function:** Determine whether a specified address has claimed the airdrop
-- **Return:** `true` claimed / `false` not claimed
+- **功能:** 判断指定地址是否已领取空投
+- **返回:** `true` 已领取 / `false` 未领取
 
-### **User Blacklist Status (`isBlacklisted`)**
+### **用户黑名单状态 (`isBlacklisted`)**
 
-- **Function:** Determine whether a specified address is blacklisted
-- **Return:** `true` blacklisted / `false` normal
+- **功能:** 判断指定地址是否被拉黑
+- **返回:** `true` 已拉黑 / `false` 正常
 
-### **Total Claim Data**
+### **总领取数据**
 
-- **`totalClaimed()`:** Total amount of tokens claimed
-- **`totalClaimedUserCount()`:** Total number of users who have claimed
+- **`totalClaimed()`**：已领取的代币总量
+- **`totalClaimedUserCount()`**：已领取用户总数
 
-### **Eligibility Verification (`verifyProof`)**
+### **资格验证 (`verifyProof`)**
 
-- **Function:** Verify whether the user address, claim amount, and Merkle Proof match, and determine if they have claiming eligibility
+- **功能:** 验证用户地址、领取数量与 Merkle Proof 是否匹配，判断是否有领取资格
 
-### **Activity Status**
+### **活动状态**
 
-- **`isCancelled()`:** Whether the airdrop has been cancelled
-- **`startTime()`:** Airdrop start time (Unix timestamp)
+- **`isCancelled()`**：空投是否已取消
+- **`startTime()`**：空投开始时间（Unix 时间戳）
 
-## 6. Contract Interface Call Examples
+## 6. 合约接口调用示例
 
-The following examples demonstrate how to interact with contracts using JavaScript (`ethers.js`) and Python (`web3.py`).
+以下示例展示了如何使用 JavaScript (`ethers.js`) 和 Python (`web3.py`) 与合约交互。
 
-### **6.1 Create Airdrop (`createProject`)**
+### **6.1 创建空投 (`createProject`)**
 
-#### **Required ABI Definitions**
+#### **必要的 ABI 定义**
 
 ```javascript
-// MoveflowAirdropFactory - createProject function and event ABI
+// MoveflowAirdropFactory - createProject 函数和事件 ABI
 const factoryAbi = [
   {
     inputs: [
@@ -195,7 +195,7 @@ const factoryAbi = [
   },
 ];
 
-// ERC20 Token - approve function ABI
+// ERC20 Token - approve 函数 ABI
 const tokenAbi = [
   {
     inputs: [
@@ -209,12 +209,12 @@ const tokenAbi = [
 ];
 ```
 
-#### **JavaScript (ethers.js v6) Example**
+#### **JavaScript (ethers.js v6) 示例**
 
 ```javascript
 import { ethers } from "ethers";
 
-// --- 1. Configure Environment ---
+// --- 1. 配置环境 ---
 const provider = new ethers.JsonRpcProvider("YOUR_RPC_URL");
 const privateKey = "YOUR_PRIVATE_KEY";
 const wallet = new ethers.Wallet(privateKey, provider);
@@ -222,19 +222,19 @@ const wallet = new ethers.Wallet(privateKey, provider);
 const factoryAddress = "MOVEFLOW_AIRDROP_FACTORY_ADDRESS";
 const factoryContract = new ethers.Contract(factoryAddress, factoryAbi, wallet);
 
-const tokenAddress = "YOUR_ERC20_TOKEN_ADDRESS"; // If it's an ETH airdrop, use ethers.ZeroAddress
+const tokenAddress = "YOUR_ERC20_TOKEN_ADDRESS"; // 如果是ETH空投，则为 ethers.ZeroAddress
 const tokenContract = new ethers.Contract(tokenAddress, tokenAbi, wallet);
 
-// --- 2. Set Airdrop Parameters ---
+// --- 2. 设置空投参数 ---
 const airdropName = "My Awesome Airdrop";
-const totalAirdropAmount = ethers.parseUnits("10000", 18); // Assuming 18 decimal places
-const merkleRoot = "0x..."; // Obtained from Step 3
-const startTime = Math.floor(Date.now() / 1000) + 3600; // Start in 1 hour
+const totalAirdropAmount = ethers.parseUnits("10000", 18); // 假设18位小数
+const merkleRoot = "0x..."; // 从第3步获取
+const startTime = Math.floor(Date.now() / 1000) + 3600; // 1小时后开始
 const isCanCancel = true;
 
 async function createAirdrop() {
   try {
-    // --- 3. For ERC20 tokens, authorize first ---
+    // --- 3. 对于ERC20代币，先授权 ---
     if (tokenAddress !== ethers.ZeroAddress) {
       console.log("Approving token transfer...");
       const approveTx = await tokenContract.approve(
@@ -245,9 +245,9 @@ async function createAirdrop() {
       console.log("Approval successful!");
     }
 
-    // --- 4. Call createProject ---
+    // --- 4. 调用 createProject ---
     console.log("Creating airdrop project...");
-    // If it's an ETH airdrop, send ETH through the value field
+    // 如果是ETH空投，需要通过 value 字段发送ETH
     const txOptions = {
       value: tokenAddress === ethers.ZeroAddress ? totalAirdropAmount : 0,
     };
@@ -268,8 +268,8 @@ async function createAirdrop() {
       receipt.hash
     );
 
-    // --- 5. Get proxy address from event ---
-    // Parse ProjectCreated event
+    // --- 5. 从事件中获取 proxy address ---
+    // 解析 ProjectCreated 事件
     const projectCreatedEvent = receipt.logs.find(
       (log) =>
         log.topics[0] ===
@@ -277,7 +277,7 @@ async function createAirdrop() {
     );
 
     if (projectCreatedEvent) {
-      // Decode event data
+      // 解码事件数据
       const decodedEvent = factoryContract.interface.parseLog({
         topics: projectCreatedEvent.topics,
         data: projectCreatedEvent.data,
@@ -300,14 +300,14 @@ async function createAirdrop() {
 createAirdrop();
 ```
 
-#### **Python (web3.py v7) Example**
+#### **Python (web3.py v7) 示例**
 
 ```python
 from web3 import Web3
 from eth_account import Account
 import time
 
-# --- 1. Configure Environment ---
+# --- 1. 配置环境 ---
 w3 = Web3(Web3.HTTPProvider("YOUR_RPC_URL"))
 account = Account.from_key("YOUR_PRIVATE_KEY")
 
@@ -342,7 +342,7 @@ factory_abi = [
 ]
 factory_contract = w3.eth.contract(address=factory_address, abi=factory_abi)
 
-token_address = Web3.to_checksum_address("YOUR_ERC20_TOKEN_ADDRESS") # If it's an ETH airdrop, use "0x0000000000000000000000000000000000000000"
+token_address = Web3.to_checksum_address("YOUR_ERC20_TOKEN_ADDRESS") # 如果是ETH空投，则为 "0x0000000000000000000000000000000000000000"
 token_abi = [
     {
         "inputs": [
@@ -356,16 +356,16 @@ token_abi = [
 ]
 token_contract = w3.eth.contract(address=token_address, abi=token_abi)
 
-# --- 2. Set Airdrop Parameters ---
+# --- 2. 设置空投参数 ---
 airdrop_name = "My Awesome Airdrop"
-total_airdrop_amount = w3.to_wei(10000, "ether") # Assuming 18 decimal places
-merkle_root = "0x..." # Obtained from Step 3
-start_time = int(time.time()) + 3600 # Start in 1 hour
+total_airdrop_amount = w3.to_wei(10000, "ether") # 假设18位小数
+merkle_root = "0x..." # 从第3步获取
+start_time = int(time.time()) + 3600 # 1小时后开始
 is_can_cancel = True
 
 def create_airdrop():
     try:
-        # --- 3. For ERC20 tokens, authorize first ---
+        # --- 3. 对于ERC20代币，先授权 ---
         if token_address != "0x0000000000000000000000000000000000000000":
             print("Approving token transfer...")
             approve_tx = token_contract.functions.approve(factory_address, total_airdrop_amount).build_transaction({
@@ -377,9 +377,9 @@ def create_airdrop():
             w3.eth.wait_for_transaction_receipt(approve_tx_hash)
             print(f"Approval successful! Tx: {approve_tx_hash.hex()}")
 
-        # --- 4. Call createProject ---
+        # --- 4. 调用 createProject ---
         print("Creating airdrop project...")
-        # If it's an ETH airdrop, send ETH through the value field
+        # 如果是ETH空投，需要通过 value 字段发送ETH
         tx_params = {
             'from': account.address,
             'nonce': w3.eth.get_transaction_count(account.address),
@@ -399,8 +399,8 @@ def create_airdrop():
         receipt = w3.eth.wait_for_transaction_receipt(create_tx_hash)
         print(f"Airdrop created successfully! Tx: {receipt.transactionHash.hex()}")
 
-        # --- 5. Get proxy address from event ---
-        # Get ProjectCreated event
+        # --- 5. 从事件中获取 proxy address ---
+        # 获取 ProjectCreated 事件
         project_created_events = factory_contract.events.ProjectCreated().process_receipt(receipt)
 
         if project_created_events:
@@ -420,12 +420,12 @@ def create_airdrop():
 create_airdrop()
 ```
 
-### **6.2 Manage Airdrop**
+### **6.2 管理空投**
 
-#### **Management Function ABI Definitions**
+#### **管理功能 ABI 定义**
 
 ```javascript
-// MoveflowAirdropImpl - Management function ABI
+// MoveflowAirdropImpl - 管理功能 ABI
 const implAbi = [
   {
     inputs: [],
@@ -449,7 +449,7 @@ const implAbi = [
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "account", type: "address" },
+    inputs: [{ internalType: "address", name: "account", type: "address" }],
     name: "removeFromBlacklist",
     outputs: [],
     stateMutability: "nonpayable",
@@ -458,10 +458,10 @@ const implAbi = [
 ];
 ```
 
-#### **JavaScript (ethers.js v6) Example**
+#### **JavaScript (ethers.js v6) 示例**
 
 ```javascript
-// --- Configuration ---
+// --- 配置 ---
 const projectProxyAddress = "YOUR_PROJECT_PROXY_ADDRESS";
 const projectContract = new ethers.Contract(
   projectProxyAddress,
@@ -469,15 +469,15 @@ const projectContract = new ethers.Contract(
   wallet
 );
 
-// --- Call Examples ---
+// --- 调用示例 ---
 async function manageAirdrop() {
-  // Cancel airdrop (before activity starts)
+  // 取消空投 (活动开始前)
   // const tx = await projectContract.cancelAirdrop();
 
-  // Rollback funds (after activity starts)
+  // 回滚资金 (活动开始后)
   // const tx = await projectContract.rollbackAirdrop();
 
-  // Blacklist user
+  // 拉黑用户
   const userToBlacklist = "0x...";
   const tx = await projectContract.addToBlacklist(userToBlacklist);
 
@@ -486,10 +486,10 @@ async function manageAirdrop() {
 }
 ```
 
-#### **Python (web3.py v7) Example**
+#### **Python (web3.py v7) 示例**
 
 ```python
-# --- Configuration ---
+# --- 配置 ---
 impl_abi = [
     {
         "inputs": [],
@@ -523,17 +523,17 @@ impl_abi = [
 project_proxy_address = Web3.to_checksum_address("YOUR_PROJECT_PROXY_ADDRESS")
 project_contract = w3.eth.contract(address=project_proxy_address, abi=impl_abi)
 
-# --- Call Examples ---
+# --- 调用示例 ---
 def manage_airdrop():
     tx_params = {'from': account.address, 'nonce': w3.eth.get_transaction_count(account.address)}
 
-    # Cancel airdrop (before activity starts)
+    # 取消空投 (活动开始前)
     # tx = project_contract.functions.cancelAirdrop().build_transaction(tx_params)
 
-    # Rollback funds (after activity starts)
+    # 回滚资金 (活动开始后)
     # tx = project_contract.functions.rollbackAirdrop().build_transaction(tx_params)
 
-    # Blacklist user
+    # 拉黑用户
     user_to_blacklist = "0x..."
     tx = project_contract.functions.addToBlacklist(user_to_blacklist).build_transaction(tx_params)
 
@@ -543,19 +543,19 @@ def manage_airdrop():
     print(f"Management action successful! Tx: {tx_hash.hex()}")
 ```
 
-### **6.3 User Claim Airdrop**
+### **6.3 用户领取空投**
 
-Users need to call the `claim` function of the `MoveflowAirdropImpl` contract to claim the airdrop. Before claiming, users need to:
+用户需要调用 `MoveflowAirdropImpl` 合约的 `claim` 函数来领取空投。领取前，用户需要：
 
-1. Get their own Merkle proof (usually provided by frontend or API)
-2. Understand fee information (call `getFeeInfo` to query)
-3. Prepare the corresponding fee payment method
+1. 获取自己的 Merkle 证明（通常由前端或 API 提供）
+2. 了解费用信息（调用 `getFeeInfo` 查询）
+3. 准备相应的费用支付方式
 
-#### **6.3.1 Query Fee Information (`getFeeInfo`)**
+#### **6.3.1 查询费用信息 (`getFeeInfo`)**
 
-Before claiming the airdrop, users should first query fee information to understand the fee type and amount they need to pay.
+在领取空投前，用户应该先查询费用信息，了解需要支付的费用类型和金额。
 
-##### **JavaScript (ethers.js v6) Example**
+##### **JavaScript (ethers.js v6) 示例**
 
 ```javascript
 async function queryFeeInfo(projectProxyAddress, claimAmount) {
@@ -620,13 +620,13 @@ async function queryFeeInfo(projectProxyAddress, claimAmount) {
   }
 }
 
-// Usage example
+// 使用示例
 const projectProxyAddress = "YOUR_PROJECT_PROXY_ADDRESS";
 const claimAmount = ethers.parseUnits("100", 18);
 queryFeeInfo(projectProxyAddress, claimAmount);
 ```
 
-##### **Python (web3.py v7) Example**
+##### **Python (web3.py v7) 示例**
 
 ```python
 def query_fee_info(project_proxy_address, claim_amount):
@@ -646,7 +646,10 @@ def query_fee_info(project_proxy_address, claim_amount):
         }
     ]
 
-    project_contract = w3.eth.contract(address=project_proxy_address, abi=get_fee_info_abi)
+    project_contract = w3.eth.contract(
+        address=Web3.to_checksum_address(project_proxy_address),
+        abi=get_fee_info_abi
+    )
 
     try:
         fee_info = project_contract.functions.getFeeInfo(claim_amount).call()
@@ -673,21 +676,26 @@ def query_fee_info(project_proxy_address, claim_amount):
     except Exception as e:
         print(f"Failed to query fee info: {e}")
 
-# Usage example
-project_proxy_address = Web3.to_checksum_address("YOUR_PROJECT_PROXY_ADDRESS")
+# 使用示例
+project_proxy_address = "YOUR_PROJECT_PROXY_ADDRESS"
 claim_amount = w3.to_wei(100, "ether")
-       query_fee_info(project_proxy_address, claim_amount)
+query_fee_info(project_proxy_address, claim_amount)
 ```
 
-#### **6.3.2 Claim Airdrop (`claim`)**
+#### **6.3.2 用户领取空投 (`claim`)**
 
-Now let's implement the actual claim function. Users need to call the `claim` function of the `MoveflowAirdropImpl` contract to claim their airdrop.
-
-##### **Claim Function ABI Definition**
+##### **JavaScript (ethers.js v6) 示例**
 
 ```javascript
-// MoveflowAirdropImpl - claim function ABI
-const claimAbi = [
+import { ethers } from "ethers";
+
+// --- 配置环境 ---
+const provider = new ethers.JsonRpcProvider("YOUR_RPC_URL");
+const privateKey = "USER_PRIVATE_KEY";
+const wallet = new ethers.Wallet(privateKey, provider);
+
+const projectProxyAddress = "YOUR_PROJECT_PROXY_ADDRESS";
+const implAbi = [
   {
     inputs: [
       { internalType: "uint256", name: "amount", type: "uint256" },
@@ -710,36 +718,23 @@ const claimAbi = [
     type: "function",
   },
 ];
-```
-
-##### **JavaScript (ethers.js v6) Example**
-
-```javascript
-import { ethers } from "ethers";
-
-// --- Configuration ---
-const provider = new ethers.JsonRpcProvider("YOUR_RPC_URL");
-const privateKey = "USER_PRIVATE_KEY";
-const wallet = new ethers.Wallet(privateKey, provider);
-
-const projectProxyAddress = "YOUR_PROJECT_PROXY_ADDRESS";
 const projectContract = new ethers.Contract(
   projectProxyAddress,
-  claimAbi,
+  implAbi,
   wallet
 );
 
 async function claimAirdrop() {
   try {
-    // --- 1. Get user claim information ---
-    const claimAmount = ethers.parseUnits("100", 18); // User's claimable amount
+    // --- 1. 获取用户的领取信息 ---
+    const claimAmount = ethers.parseUnits("100", 18); // 用户可领取的数量
     const merkleProof = [
-      "0x...", // Merkle proof provided by backend, remove 0x prefix
+      "0x...", // Merkle proof 由后端提供
       "0x...",
       "0x...",
     ];
 
-    // --- 2. Query fee information ---
+    // --- 2. 查询费用信息 ---
     const feeInfo = await projectContract.getFeeInfo(claimAmount);
     const feeAmount = feeInfo[0];
     const feeToken = feeInfo[1];
@@ -748,27 +743,19 @@ async function claimAirdrop() {
     console.log(`Fee amount: ${ethers.formatUnits(feeAmount, 18)}`);
     console.log(`Fee type: ${feeType}`);
 
-    // --- 3. Prepare payment based on fee type ---
-    const txOptions = {
-      gasLimit: 300000, // Estimate or set reasonable gas limit
-    };
+    // --- 3. 根据费用类型准备支付 ---
+    let txOptions = {};
 
     if (feeType === 0n) {
-      // FIXED_ETH_FEE: Need to send ETH as fee
+      // FIXED_ETH_FEE
+      // 需要发送ETH作为手续费
       txOptions.value = feeAmount;
       console.log(`Sending ${ethers.formatEther(feeAmount)} ETH as fee`);
     } else if (feeType === 1n) {
-      // FIXED_TOKEN_FEE: Need to approve fee token first
+      // FIXED_TOKEN_FEE
+      // 需要先授权费用代币
       const feeTokenAbi = [
-        {
-          inputs: [
-            { internalType: "address", name: "spender", type: "address" },
-            { internalType: "uint256", name: "amount", type: "uint256" },
-          ],
-          name: "approve",
-          outputs: [{ internalType: "bool", name: "", type: "bool" }],
-          type: "function",
-        },
+        "function approve(address spender, uint256 amount) returns (bool)",
       ];
       const feeTokenContract = new ethers.Contract(
         feeToken,
@@ -784,7 +771,8 @@ async function claimAirdrop() {
       await approveTx.wait();
       console.log("Fee token approved!");
     } else if (feeType === 2n) {
-      // PERCENTAGE_FEE: Fee deducted from claim amount, no additional action needed
+      // PERCENTAGE_FEE
+      // 百分比费用从领取金额中扣除，无需额外操作
       console.log(
         `Fee will be deducted from claim amount: ${ethers.formatUnits(
           feeAmount,
@@ -793,19 +781,19 @@ async function claimAirdrop() {
       );
     }
 
-    // --- 4. Call claim function ---
+    // --- 4. 调用 claim 函数 ---
     console.log("Claiming airdrop...");
     const claimTx = await projectContract.claim(
       claimAmount,
       merkleProof,
       txOptions
     );
-
     const receipt = await claimTx.wait();
+
     console.log("Airdrop claimed successfully!");
     console.log(`Transaction hash: ${receipt.hash}`);
 
-    // If it's percentage fee, calculate actual received amount
+    // 如果是百分比费用，实际收到的金额
     if (feeType === 2n) {
       const actualReceived = claimAmount - feeAmount;
       console.log(
@@ -820,13 +808,13 @@ async function claimAirdrop() {
 claimAirdrop();
 ```
 
-##### **Python (web3.py v7) Example**
+##### **Python (web3.py v7) 示例**
 
 ```python
 from web3 import Web3
 from eth_account import Account
 
-# --- Configuration ---
+# --- 配置环境 ---
 w3 = Web3(Web3.HTTPProvider("YOUR_RPC_URL"))
 account = Account.from_key("USER_PRIVATE_KEY")
 
@@ -858,15 +846,15 @@ project_contract = w3.eth.contract(address=project_proxy_address, abi=impl_abi)
 
 def claim_airdrop():
     try:
-        # --- 1. Get user claim information ---
-        claim_amount = w3.to_wei(100, "ether")  # User's claimable amount
+        # --- 1. 获取用户的领取信息 ---
+        claim_amount = w3.to_wei(100, "ether")  # 用户可领取的数量
         merkle_proof = [
-            bytes.fromhex("..."),  # Merkle proof provided by backend, remove 0x prefix
+            bytes.fromhex("..."),  # Merkle proof 由后端提供，去掉 0x 前缀
             bytes.fromhex("..."),
             bytes.fromhex("...")
         ]
 
-        # --- 2. Query fee information ---
+        # --- 2. 查询费用信息 ---
         fee_info = project_contract.functions.getFeeInfo(claim_amount).call()
         fee_amount = fee_info[0]
         fee_token = fee_info[1]
@@ -875,21 +863,21 @@ def claim_airdrop():
         print(f"Fee amount: {w3.from_wei(fee_amount, 'ether')}")
         print(f"Fee type: {fee_type}")
 
-        # --- 3. Prepare payment based on fee type ---
+        # --- 3. 根据费用类型准备支付 ---
         tx_params = {
             'from': account.address,
             'nonce': w3.eth.get_transaction_count(account.address),
-            'gas': 300000,  # Estimate or set reasonable gas limit
+            'gas': 300000,  # 估算或设置合理的 gas limit
             'gasPrice': w3.eth.gas_price
         }
 
         if fee_type == 0:  # FIXED_ETH_FEE
-            # Need to send ETH as fee
+            # 需要发送ETH作为手续费
             tx_params['value'] = fee_amount
             print(f"Sending {w3.from_wei(fee_amount, 'ether')} ETH as fee")
 
         elif fee_type == 1:  # FIXED_TOKEN_FEE
-            # Need to approve fee token first
+            # 需要先授权费用代币
             fee_token_abi = [
                 {
                     "inputs": [
@@ -915,18 +903,18 @@ def claim_airdrop():
             })
 
             signed_approve = account.sign_transaction(approve_tx)
-            approve_hash = w3.eth.send_raw_transaction(signed_approve.rawTransaction)
+            approve_hash = w3.eth.send_raw_transaction(signed_approve.raw_transaction)
             w3.eth.wait_for_transaction_receipt(approve_hash)
             print("Fee token approved!")
 
-            # Update nonce
+            # 更新 nonce
             tx_params['nonce'] = w3.eth.get_transaction_count(account.address)
 
         elif fee_type == 2:  # PERCENTAGE_FEE
-            # Percentage fee deducted from claim amount, no additional action needed
+            # 百分比费用从领取金额中扣除，无需额外操作
             print(f"Fee will be deducted from claim amount: {w3.from_wei(fee_amount, 'ether')}")
 
-        # --- 4. Call claim function ---
+        # --- 4. 调用 claim 函数 ---
         print("Claiming airdrop...")
         claim_tx = project_contract.functions.claim(
             claim_amount,
@@ -934,13 +922,13 @@ def claim_airdrop():
         ).build_transaction(tx_params)
 
         signed_tx = account.sign_transaction(claim_tx)
-        tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+        tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
         receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
         print("Airdrop claimed successfully!")
         print(f"Transaction hash: {tx_hash.hex()}")
 
-        # If it's percentage fee, calculate actual received amount
+        # 如果是百分比费用，实际收到的金额
         if fee_type == 2:
             actual_received = claim_amount - fee_amount
             print(f"Actual amount received: {w3.from_wei(actual_received, 'ether')}")
@@ -951,13 +939,13 @@ def claim_airdrop():
 claim_airdrop()
 ```
 
-### **6.4 Query Interface Examples**
+### **6.4 查询接口示例**
 
-The `MoveflowAirdropImpl` contract provides multiple query interfaces that users and project owners can use to query airdrop status and information.
+`MoveflowAirdropImpl` 合约提供了多个查询接口，用户和项目方可以通过这些接口查询空投的状态和信息。
 
-#### **6.4.1 Query Interface Examples**
+#### **6.4.1 查询接口示例**
 
-##### **Query Interface ABI**
+##### **查询接口 ABI**
 
 ```javascript
 const queryAbi = [
@@ -1024,12 +1012,12 @@ const queryAbi = [
 ];
 ```
 
-##### **JavaScript (ethers.js v6) Example**
+##### **JavaScript (ethers.js v6) 查询示例**
 
 ```javascript
 import { ethers } from "ethers";
 
-// --- Configuration ---
+// --- 配置环境 ---
 const provider = new ethers.JsonRpcProvider("YOUR_RPC_URL");
 const projectProxyAddress = "YOUR_PROJECT_PROXY_ADDRESS";
 const projectContract = new ethers.Contract(
@@ -1040,33 +1028,33 @@ const projectContract = new ethers.Contract(
 
 async function queryAirdropInfo() {
   try {
-    const userAddress = "0x..."; // User address to query
+    const userAddress = "0x1234567890123456789012345678901234567890";
     const claimAmount = ethers.parseUnits("100", 18);
-    const merkleProof = [
-      "0x...", // Merkle proof for this user
-      "0x...",
-      "0x...",
-    ];
+    const merkleProof = ["0x...", "0x...", "0x..."];
 
-    // 1. Query user claim status
-    const hasClaimed = await projectContract.hasClaimed(userAddress);
-    console.log(`User has claimed: ${hasClaimed}`);
+    // 1. 查询用户是否已领取
+    const claimed = await projectContract.hasClaimed(userAddress);
+    console.log(`User has claimed: ${claimed}`);
 
-    // 2. Query user blacklist status
-    const isBlacklisted = await projectContract.isBlacklisted(userAddress);
-    console.log(`User is blacklisted: ${isBlacklisted}`);
+    // 2. 查询用户是否被拉黑
+    const blacklisted = await projectContract.isBlacklisted(userAddress);
+    console.log(`User is blacklisted: ${blacklisted}`);
 
-    // 3. Query total claimed data
-    const totalClaimed = await projectContract.totalClaimed();
-    const totalClaimedUserCount = await projectContract.totalClaimedUserCount();
-    console.log(`Total claimed: ${ethers.formatUnits(totalClaimed, 18)}`);
-    console.log(`Total claimed users: ${totalClaimedUserCount}`);
+    // 3. 查询总领取金额
+    const totalClaimedAmount = await projectContract.totalClaimed();
+    console.log(
+      `Total claimed amount: ${ethers.formatUnits(totalClaimedAmount, 18)}`
+    );
 
-    // 4. Query Merkle root
-    const merkleRoot = await projectContract.merkleRoot();
-    console.log(`Merkle root: ${merkleRoot}`);
+    // 4. 查询总领取用户数
+    const claimedUserCount = await projectContract.totalClaimedUserCount();
+    console.log(`Total users claimed: ${claimedUserCount}`);
 
-    // 5. Verify Merkle proof
+    // 5. 查询 Merkle 根
+    const root = await projectContract.merkleRoot();
+    console.log(`Merkle root: ${root}`);
+
+    // 6. 验证 Merkle 证明
     const isValid = await projectContract.verifyProof(
       userAddress,
       claimAmount,
@@ -1074,25 +1062,24 @@ async function queryAirdropInfo() {
     );
     console.log(`Proof is valid: ${isValid}`);
 
-    // 6. Query if airdrop is cancelled
-    const isCancelled = await projectContract.isCancelled();
-    console.log(`Airdrop is cancelled: ${isCancelled}`);
+    // 7. 查询空投是否已取消
+    const cancelled = await projectContract.isCancelled();
+    console.log(`Airdrop is cancelled: ${cancelled}`);
 
-    // 7. Query airdrop start time
-    const startTime = await projectContract.startTime();
-    const startDate = new Date(Number(startTime) * 1000);
+    // 8. 查询空投开始时间
+    const start = await projectContract.startTime();
+    const startDate = new Date(Number(start) * 1000);
     console.log(`Start time: ${startDate.toISOString()}`);
 
-    // Comprehensive status check
+    // 综合状态检查
     const currentTime = Math.floor(Date.now() / 1000);
-
-    if (isCancelled) {
+    if (cancelled) {
       console.log("Status: Airdrop has been cancelled");
-    } else if (currentTime < startTime) {
+    } else if (currentTime < Number(start)) {
       console.log("Status: Airdrop not started yet");
-    } else if (hasClaimed) {
+    } else if (claimed) {
       console.log("Status: User has already claimed");
-    } else if (isBlacklisted) {
+    } else if (blacklisted) {
       console.log("Status: User is blacklisted");
     } else if (!isValid) {
       console.log("Status: Invalid proof or not eligible");
@@ -1107,13 +1094,13 @@ async function queryAirdropInfo() {
 queryAirdropInfo();
 ```
 
-##### **Python (web3.py v7) Example**
+##### **Python (web3.py v7) 查询示例**
 
 ```python
 from web3 import Web3
 from datetime import datetime
 
-# --- Configuration ---
+# --- 配置环境 ---
 w3 = Web3(Web3.HTTPProvider("YOUR_RPC_URL"))
 project_proxy_address = Web3.to_checksum_address("YOUR_PROJECT_PROXY_ADDRESS")
 
@@ -1184,33 +1171,35 @@ project_contract = w3.eth.contract(address=project_proxy_address, abi=query_abi)
 
 def query_airdrop_info():
     try:
-        user_address = "0x..."  # User address to query
+        user_address = Web3.to_checksum_address("0x1234567890123456789012345678901234567890")
         claim_amount = w3.to_wei(100, "ether")
         merkle_proof = [
-            bytes.fromhex("..."),  # Merkle proof for this user
+            bytes.fromhex("..."),  # 去掉 0x 前缀
             bytes.fromhex("..."),
             bytes.fromhex("...")
         ]
 
-        # 1. Query user claim status
+        # 1. 查询用户是否已领取
         claimed = project_contract.functions.hasClaimed(user_address).call()
         print(f"User has claimed: {claimed}")
 
-        # 2. Query user blacklist status
+        # 2. 查询用户是否被拉黑
         blacklisted = project_contract.functions.isBlacklisted(user_address).call()
         print(f"User is blacklisted: {blacklisted}")
 
-        # 3. Query total claimed data
-        total_claimed = project_contract.functions.totalClaimed().call()
-        total_claimed_user_count = project_contract.functions.totalClaimedUserCount().call()
-        print(f"Total claimed: {w3.from_wei(total_claimed, 'ether')}")
-        print(f"Total claimed users: {total_claimed_user_count}")
+        # 3. 查询总领取金额
+        total_claimed_amount = project_contract.functions.totalClaimed().call()
+        print(f"Total claimed amount: {w3.from_wei(total_claimed_amount, 'ether')} tokens")
 
-        # 4. Query Merkle root
+        # 4. 查询总领取用户数
+        claimed_user_count = project_contract.functions.totalClaimedUserCount().call()
+        print(f"Total users claimed: {claimed_user_count}")
+
+        # 5. 查询 Merkle 根
         root = project_contract.functions.merkleRoot().call()
         print(f"Merkle root: {root.hex()}")
 
-        # 5. Verify Merkle proof
+        # 6. 验证 Merkle 证明
         is_valid = project_contract.functions.verifyProof(
             user_address,
             claim_amount,
@@ -1218,16 +1207,16 @@ def query_airdrop_info():
         ).call()
         print(f"Proof is valid: {is_valid}")
 
-        # 6. Query if airdrop is cancelled
+        # 7. 查询空投是否已取消
         cancelled = project_contract.functions.isCancelled().call()
         print(f"Airdrop is cancelled: {cancelled}")
 
-        # 7. Query airdrop start time
+        # 8. 查询空投开始时间
         start_timestamp = project_contract.functions.startTime().call()
         start_date = datetime.fromtimestamp(start_timestamp)
         print(f"Start time: {start_date.isoformat()}")
 
-        # Comprehensive status check
+        # 综合状态检查
         import time
         current_time = int(time.time())
 
@@ -1250,9 +1239,9 @@ def query_airdrop_info():
 query_airdrop_info()
 ```
 
-#### **6.4.2 Batch Query Examples**
+#### **6.4.2 批量查询示例**
 
-For scenarios that require querying multiple user statuses, you can use batch queries to optimize performance:
+对于需要查询多个用户状态的场景，可以使用批量查询优化性能：
 
 ##### **JavaScript (ethers.js v6)**
 
@@ -1277,7 +1266,7 @@ async function batchQueryUsers(userAddresses) {
   return results;
 }
 
-// Usage example
+// 使用示例
 const users = [
   "0x1234567890123456789012345678901234567890",
   "0x2345678901234567890123456789012345678901",
@@ -1310,7 +1299,7 @@ def batch_query_users(user_addresses):
     print("Batch query results:", results)
     return results
 
-# Usage example
+# 使用示例
 users = [
     "0x1234567890123456789012345678901234567890",
     "0x2345678901234567890123456789012345678901",
