@@ -450,7 +450,7 @@ const implAbi = [
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "account", type: "address" },
+    inputs: [{ internalType: "address", name: "account", type: "address" }],
     name: "removeFromBlacklist",
     outputs: [],
     stateMutability: "nonpayable",
@@ -677,7 +677,7 @@ def query_fee_info(project_proxy_address, claim_amount):
 # Usage example
 project_proxy_address = Web3.to_checksum_address("YOUR_PROJECT_PROXY_ADDRESS")
 claim_amount = w3.to_wei(100, "ether")
-       query_fee_info(project_proxy_address, claim_amount)
+query_fee_info(project_proxy_address, claim_amount)
 ```
 
 #### **6.3.2 Claim Airdrop (`claim`)**
