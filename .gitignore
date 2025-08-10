@@ -1,5 +1,18 @@
-# Python 测试文件
-airdrop_test.py
+# Python 测试文件（只保留 README.md, airdrop-guide-中文版.md, generateMerkleTree.ts）
+airdrop-create-test.py
+airdrop-manage-test.py
+airdrop-claim-test.py
+airdrop-query-test.py
+
+# 数据文件
+airdrop.csv
+merkle_data.json
+
+# Node.js 相关文件
+package.json
+package-lock.json
+node_modules/
+tsconfig.json
 
 # Python 缓存文件
 __pycache__/
@@ -37,6 +50,3 @@ Thumbs.db
 *.key
 private_key.txt
 secrets.txt
-
-# 依赖文件
-requirements.txt

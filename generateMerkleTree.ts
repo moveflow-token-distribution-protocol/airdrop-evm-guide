@@ -175,10 +175,12 @@ function loadFromCSV(filename: string): AirdropData[] {
     }
   }
   
-  return dataLines.map((line, index) => {
+  return dataLines
+    .filter(line => line.trim() && line.includes(',') && !line.startsWith(','))  // 过滤空行和无效行
+    .map((line, index) => {
     const [address, amount] = line.split(',');
     
-    if (!address || !amount) {
+    if (!address || !amount || address.trim() === '' || amount.trim() === '') {
       throw new Error(`CSV文件第${index + 2}行格式错误：缺少address或amount字段`);
     }
     
@@ -222,7 +224,7 @@ async function main() {
   console.log("支持100万用户的高效空投系统\n");
   
   // 检查是否有CSV文件
-  const csvFile = path.join(__dirname, '../data/airdrop_data.csv');
+  const csvFile = path.join(__dirname, 'airdrop.csv');
   const exampleFile = path.join(__dirname, '../data/airdrop_data_example.csv');
   let airdropData: AirdropData[];
   
@@ -258,7 +260,6 @@ async function main() {
         }
       }).join('\n');
     
-    fs.mkdirSync(path.dirname(csvFile), { recursive: true });
     fs.writeFileSync(csvFile, csvContent);
     console.log(`📝 示例CSV文件已创建: ${csvFile}`);
     console.log(`📋 示例格式文件: ${exampleFile}`);
@@ -290,7 +291,7 @@ async function main() {
   console.log(`💰 总空投数量: ${totalAmount} Wei (${totalTokensStr} 代币)`);
   
   // 保存数据
-  const outputFile = path.join(__dirname, '../data/merkle_data.json');
+  const outputFile = path.join(__dirname, 'merkle_data.json');
   generator.saveToFile(outputFile);
   
   // 验证几个示例
