@@ -374,7 +374,7 @@ def create_airdrop():
                 'nonce': w3.eth.get_transaction_count(account.address)
             })
             signed_approve_tx = account.sign_transaction(approve_tx)
-            approve_tx_hash = w3.eth.send_raw_transaction(signed_approve_tx.rawTransaction)
+            approve_tx_hash = w3.eth.send_raw_transaction(signed_approve_tx.raw_transaction)
             w3.eth.wait_for_transaction_receipt(approve_tx_hash)
             print(f"Approval successful! Tx: {approve_tx_hash.hex()}")
 
@@ -396,9 +396,15 @@ def create_airdrop():
         ).build_transaction(tx_params)
 
         signed_create_tx = account.sign_transaction(create_tx)
-        create_tx_hash = w3.eth.send_raw_transaction(signed_create_tx.rawTransaction)
+        create_tx_hash = w3.eth.send_raw_transaction(signed_create_tx.raw_transaction)
         receipt = w3.eth.wait_for_transaction_receipt(create_tx_hash)
-        print(f"Airdrop created successfully! Tx: {receipt.transactionHash.hex()}")
+        
+        # 检查交易是否成功
+        if receipt.status == 1:
+            print(f"Airdrop created successfully! Tx: {receipt.transactionHash.hex()}")
+        else:
+            print(f"❌ Transaction failed! Tx: {receipt.transactionHash.hex()}")
+            return
 
         # --- 5. 从事件中获取 proxy address ---
         # 获取 ProjectCreated 事件
@@ -539,7 +545,7 @@ def manage_airdrop():
     tx = project_contract.functions.addToBlacklist(user_to_blacklist).build_transaction(tx_params)
 
     signed_tx = account.sign_transaction(tx)
-    tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     w3.eth.wait_for_transaction_receipt(tx_hash)
     print(f"Management action successful! Tx: {tx_hash.hex()}")
 ```
