@@ -1,8 +1,8 @@
-# **Moveflow Airdrop: 项目方操作指南**
+# **MoveFlow Airdrop: 项目方操作指南**
 
 ## 1. 简介
 
-欢迎使用 Moveflow Airdrop。本指南将引导您完成作为项目方（Project Owner）所需了解的全部流程，从准备您的空投名单到管理已上线的空投项目，并提供与智能合约交互的代码示例。
+欢迎使用 Moveflow Airdrop。本指南将引导您完成作为项目方（Project Owner）所需了解的全部流程，从准备您的空投名单、管理已上线的空投项目到查询空投的进展，并提供与智能合约交互的代码示例。
 
 ## 2. 空投创建流程
 
@@ -54,7 +54,10 @@ Moveflow 支持以下三种收费模式，您的空投代币将被配置为其�
 
 您需要调用 `MoveflowAirdropFactory` 合约的 `createProject` 函数来正式发起空投。这是一个原子操作，会同时部署新合约并转入资金。
 
-### **第 6 步：与平台沟通创建用户交互前端页面**
+### **第 6 步：创建用户交互前端页面**
+
+为方便用户领取空投，您需要联系平台创建空投领取页面，参考示例：  
+[https://claim.mezo.moveflow.xyz/](https://claim.mezo.moveflow.xyz/)
 
 ## 3. 空投管理权限
 
@@ -900,7 +903,9 @@ claim_airdrop()
 
 `MoveflowAirdropImpl` 合约提供了多个查询接口，用户和项目方可以通过这些接口查询空投的状态和信息。
 
-#### **查询接口 ABI**
+#### **6.4.1 查询接口示例**
+
+##### **查询接口 ABI**
 
 ```javascript
 const queryAbi = [
@@ -967,7 +972,7 @@ const queryAbi = [
 ];
 ```
 
-#### **JavaScript (ethers.js v6) 查询示例**
+##### **JavaScript (ethers.js v6) 查询示例**
 
 ```javascript
 import { ethers } from "ethers";
@@ -1049,7 +1054,7 @@ async function queryAirdropInfo() {
 queryAirdropInfo();
 ```
 
-#### **Python (web3.py v7) 查询示例**
+##### **Python (web3.py v7) 查询示例**
 
 ```python
 from web3 import Web3
@@ -1194,7 +1199,7 @@ def query_airdrop_info():
 query_airdrop_info()
 ```
 
-#### **批量查询示例**
+#### **6.4.2 批量查询示例**
 
 对于需要查询多个用户状态的场景，可以使用批量查询优化性能：
 
