@@ -14,9 +14,9 @@
 
 Moveflow 支持以下三种收费模式，您的空投代币将被配置为其中一种：
 
-1.  **固定 ETH 费用 (Fixed ETH Fee)**
+1.  **固定 Gas Token 费用 (Fixed Gas Token Fee)**
 
-    - **工作方式:** 每个领取空投的用户都需要支付一笔固定数额的 ETH 作为手续费。
+    - **工作方式:** 每个领取空投的用户都需要支付一笔固定数额的 Gas Token 作为手续费。
     - **对应合约:** `FixedETHFeeInstance.sol`
 
 2.  **固定代币费用 (Fixed Token Fee)**
@@ -54,7 +54,9 @@ Moveflow 支持以下三种收费模式，您的空投代币将被配置为其�
 
 您需要调用 `MoveflowAirdropFactory` 合约的 `createProject` 函数来正式发起空投。这是一个原子操作，会同时部署新合约并转入资金。
 
-## 3. 空投项目权限管理
+### **第 6 步：与平台沟通创建用户交互前端页面**
+
+## 3. 空投管理权限
 
 项目创建后，您作为项目所有者（Owner），可对**该项目的独立合约**（Proxy Address）拥有以下管理权限。
 
@@ -82,11 +84,15 @@ Moveflow 支持以下三种收费模式，您的空投代币将被配置为其�
   - 必须在 `startTime` **之后**调用。
   - **注意:** 执行此操作会产生一笔平台服务费（回滚费），该费用会从剩余资金中扣除，然后将最终余额退还给您。
 
-## 4. 合约接口调用示例
+## 4. 空投领取
+
+## 5. 空投进展查询
+
+## 6. 合约接口调用示例
 
 以下示例展示了如何使用 JavaScript (`ethers.js`) 和 Python (`web3.py`) 与合约交互。
 
-### **4.1 创建空投 (`createProject`)**
+### **6.1 创建空投 (`createProject`)**
 
 #### **必要的 ABI 定义**
 
@@ -371,7 +377,7 @@ def create_airdrop():
 create_airdrop()
 ```
 
-### **4.2 权限接口调用**
+### **6.2 空投管理接口调用**
 
 #### **管理功能 ABI 定义**
 
@@ -494,7 +500,7 @@ def manage_airdrop():
     print(f"Management action successful! Tx: {tx_hash.hex()}")
 ```
 
-## 5. 用户领取空投接口
+### **6.3 用户领取空投接口**
 
 用户需要调用 `MoveflowAirdropImpl` 合约的 `claim` 函数来领取空投。领取前，用户需要：
 
@@ -502,11 +508,11 @@ def manage_airdrop():
 2. 了解费用信息（调用 `getFeeInfo` 查询）
 3. 准备相应的费用支付方式
 
-### **5.1 查询费用信息 (`getFeeInfo`)**
+#### **6.3.1 查询费用信息 (`getFeeInfo`)**
 
 在领取空投前，用户应该先查询费用信息，了解需要支付的费用类型和金额。
 
-#### **JavaScript (ethers.js v6) 示例**
+##### **JavaScript (ethers.js v6) 示例**
 
 ```javascript
 async function queryFeeInfo(projectProxyAddress, claimAmount) {
@@ -577,7 +583,7 @@ const claimAmount = ethers.parseUnits("100", 18);
 queryFeeInfo(projectProxyAddress, claimAmount);
 ```
 
-#### **Python (web3.py v7) 示例**
+##### **Python (web3.py v7) 示例**
 
 ```python
 def query_fee_info(project_proxy_address, claim_amount):
@@ -633,9 +639,9 @@ claim_amount = w3.to_wei(100, "ether")
 query_fee_info(project_proxy_address, claim_amount)
 ```
 
-### **5.2 用户领取空投 (`claim`)**
+#### **6.3.2 用户领取空投 (`claim`)**
 
-#### **JavaScript (ethers.js v6) 示例**
+##### **JavaScript (ethers.js v6) 示例**
 
 ```javascript
 import { ethers } from "ethers";
@@ -759,7 +765,7 @@ async function claimAirdrop() {
 claimAirdrop();
 ```
 
-#### **Python (web3.py v7) 示例**
+##### **Python (web3.py v7) 示例**
 
 ```python
 from web3 import Web3
@@ -890,11 +896,11 @@ def claim_airdrop():
 claim_airdrop()
 ```
 
-## 6. 查询接口示例
+### **6.4 查询接口示例**
 
 `MoveflowAirdropImpl` 合约提供了多个查询接口，用户和项目方可以通过这些接口查询空投的状态和信息。
 
-### **6.1 查询接口 ABI**
+#### **查询接口 ABI**
 
 ```javascript
 const queryAbi = [
@@ -961,7 +967,7 @@ const queryAbi = [
 ];
 ```
 
-### **6.2 JavaScript (ethers.js v6) 查询示例**
+#### **JavaScript (ethers.js v6) 查询示例**
 
 ```javascript
 import { ethers } from "ethers";
@@ -1043,7 +1049,7 @@ async function queryAirdropInfo() {
 queryAirdropInfo();
 ```
 
-### **6.3 Python (web3.py v7) 查询示例**
+#### **Python (web3.py v7) 查询示例**
 
 ```python
 from web3 import Web3
@@ -1188,11 +1194,11 @@ def query_airdrop_info():
 query_airdrop_info()
 ```
 
-### **6.4 批量查询示例**
+#### **批量查询示例**
 
 对于需要查询多个用户状态的场景，可以使用批量查询优化性能：
 
-#### **JavaScript (ethers.js v6)**
+##### **JavaScript (ethers.js v6)**
 
 ```javascript
 async function batchQueryUsers(userAddresses) {
@@ -1224,7 +1230,7 @@ const users = [
 batchQueryUsers(users);
 ```
 
-#### **Python (web3.py v7)**
+##### **Python (web3.py v7)**
 
 ```python
 import asyncio
