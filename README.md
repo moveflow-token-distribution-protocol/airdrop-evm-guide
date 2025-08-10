@@ -42,6 +42,7 @@ You need a CSV file containing recipient addresses and corresponding amounts.
 ### **Step 3: Generate Merkle Root and Total Amount**
 
 The platform will generate a **Merkle Root** and **Total Amount** based on your CSV file.
+The process of generating a Merkle Tree can be referenced from the `generateMerkleTree.ts` file in the repo.
 
 ### **Step 4: Confirm Airdrop Parameters**
 
